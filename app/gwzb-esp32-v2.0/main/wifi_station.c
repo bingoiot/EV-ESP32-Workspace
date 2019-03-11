@@ -70,8 +70,7 @@ esp_err_t initialise_wifi(void)
 	ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA,&sta_conf));
 	if((osMemchkz(sta_conf.sta.ssid,32)==0)||osMemchkz(sta_conf.sta.password,64)==0)
 	{
-	    ESP_ERROR_CHECK( esp_smartconfig_set_type(SC_TYPE_AIRKISS) );
-	    ESP_ERROR_CHECK( esp_smartconfig_start(sc_callback) );
+		xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 2048, NULL, 3, NULL);
 		ret = ESP_FAIL;
 	}
 	else
@@ -79,7 +78,7 @@ esp_err_t initialise_wifi(void)
 		ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA,&sta_conf));
 		ESP_ERROR_CHECK(esp_wifi_connect());
 	}
-	xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 2048, NULL, 3, NULL);
+
 	return ret;
 }
 
@@ -131,12 +130,14 @@ void smartconfig_example_task(void * parm)
 	uint8						got_ip_flag = 0;
 	uint32						runtime = portMAX_DELAY;;
     EventBits_t uxBits;
+    ESP_ERROR_CHECK( esp_smartconfig_set_type(SC_TYPE_AIRKISS) );
+    ESP_ERROR_CHECK( esp_smartconfig_start(sc_callback) );
     while (1) {
         uxBits = xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT | ESPTOUCH_DONE_BIT, true, false, runtime);
         if(uxBits & CONNECTED_BIT) {
             ESP_LOGI(TAG, "WiFi Connected to ap");
             airkiss_state = SC_STATUS_LINK_OVER+1;
-            runtime = 0;
+            runtime = (60*1000)/portTICK_RATE_MS;
         }
         if(uxBits & START_PROCESS_BIT)
 		{
