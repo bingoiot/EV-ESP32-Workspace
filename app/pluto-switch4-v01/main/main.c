@@ -14,9 +14,8 @@
 #include "app_task.h"
 #include "hal_led.h"
 #include "hal_key.h"
-#include "pluto_nvs.h"
 #include "pluto.h"
-#include "pluto_file_system.h"
+#include "pluto_nvs.h"
 
 #define DEFAULT_ETHERNET_PHY_CONFIG phy_lan8720_default_ethernet_config
 #define PIN_SMI_MDC   5
@@ -33,9 +32,9 @@ void app_main()
 {
 	const esp_partition_t *pboot = esp_ota_get_boot_partition();
 	const esp_partition_t *prun = esp_ota_get_running_partition();
-	osLogI(DBG_UPGRADE, "app_main boot partition		:type:%08x subtype:%08x run lable:%s addr:%08x size:%08x \r\n",
+	osLogI(DBG_START, "app_main boot partition		:type:%08x subtype:%08x run lable:%s addr:%08x size:%08x \r\n",
 			pboot->type,pboot->subtype,pboot->label,pboot->address,pboot->size);
-	osLogI(DBG_UPGRADE, "app_main runnung partition	:type:%08x subtype:%08x run lable:%s addr:%08x size:%08x \r\n",
+	osLogI(DBG_START, "app_main runnung partition	:type:%08x subtype:%08x run lable:%s addr:%08x size:%08x \r\n",
 			prun->type,prun->subtype,prun->label,prun->address,prun->size);
 	osInit();
 	osStartReloadTimer(1000,init_task,1,NULL);

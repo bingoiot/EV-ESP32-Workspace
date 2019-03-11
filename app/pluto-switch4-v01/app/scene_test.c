@@ -7,8 +7,6 @@
  */
 
 #include "osCore.h"
-#include "scene.h"
-#include "pluto_common.h"
 #include "pluto_file_system.h"
 #include "pluto.h"
 #include "aID.h"
@@ -78,7 +76,6 @@ void  vm_test0(void)
 	//osPrintf(1,"%s",out);
 	pluto_write_text_file("test0.vm",out);
 	osFree(out);
-	Scene_InputDevMsg((address_t*)&TestAddr,pluto_get_seq(),(command_t*)&TestCmd,(uint8*)devData,0x04);
 }
 void  vm_test1(void)
 {
@@ -115,7 +112,6 @@ void  vm_test1(void)
 	//osPrintf(1,"%s",out);
 	pluto_write_text_file("test0.vm",out);
 	osFree(out);
-	Scene_InputDevMsg((address_t*)&TestAddr,pluto_get_seq(),(command_t*)&TestCmd,(uint8*)devData,4);
 }
 void  vm_test2(void)
 {
@@ -157,7 +153,6 @@ void  vm_test2(void)
 	//Scene_CreateTask(out,"test");
 	pluto_write_text_file("test0.vm",out);
 	osFree(out);
-	Scene_InputDevMsg((address_t*)&TestAddr,pluto_get_seq(),(command_t*)&TestCmd,(uint8*)devData,4);
 }
 void  vm_test3(void)
 {
@@ -199,7 +194,6 @@ void  vm_test3(void)
 	//Scene_CreateTask(out,"test");
 	pluto_write_text_file("test0.vm",out);
 	osFree(out);
-	Scene_InputDevMsg((address_t*)&TestAddr,pluto_get_seq(),(command_t*)&TestCmd,(uint8*)devData,4);
 }
 void  vm_test4(void)
 {
@@ -226,7 +220,6 @@ void  vm_test4(void)
 	//Scene_CreateTask(out,"test");
 	pluto_write_text_file("test0.vm",out);
 	osFree(out);
-	Scene_InputDevMsg((address_t*)&TestAddr,pluto_get_seq(),(command_t*)&TestCmd,(uint8*)devData,4);
 }
 void  vm_test5(void)
 {
@@ -263,7 +256,6 @@ void  vm_test5(void)
 	//Scene_CreateTask(out,"test");
 	pluto_write_text_file("test0.vm",out);
 	osFree(out);
-	Scene_InputDevMsg((address_t*)&TestAddr,pluto_get_seq(),(command_t*)&TestCmd,(uint8*)devData,4);
 }
 
 
