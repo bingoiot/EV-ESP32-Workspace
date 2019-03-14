@@ -70,13 +70,13 @@ void FUC_ATTR hal_led_task(int sig, void *param,int len)
 	{
 		if(Led.status==LED_STATUS_OFF)
 		{
-			osLogI(DBG_HAL,"hal_led_task: high num:%d \r\n",Led.blinkNum);
+			//osLogI(DBG_HAL,"hal_led_task: high num:%d \r\n",Led.blinkNum);
 			gpio_set_level(GPIO_LED_NUM,LED_STATUS_ON);
 			osStartTimer(Led.blinkTimeH,hal_led_task,1,NULL);
 		}
 		else
 		{
-			osLogI(DBG_HAL,"hal_led_task: low num:%d \r\n",Led.blinkNum);
+			//osLogI(DBG_HAL,"hal_led_task: low num:%d \r\n",Led.blinkNum);
 			gpio_set_level(GPIO_LED_NUM,LED_STATUS_OFF);
 			Led.blinkNum--;
 			osStartTimer(Led.blinkTimeL,hal_led_task,1,NULL);

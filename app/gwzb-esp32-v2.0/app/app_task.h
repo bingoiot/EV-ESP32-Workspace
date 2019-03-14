@@ -1,7 +1,7 @@
 /*
  * app_task.h
  *
- *  Created on: 2017Äê5ÔÂ28ÈÕ
+ *  Created on: 2017ï¿½ï¿½5ï¿½ï¿½28ï¿½ï¿½
  *      Author: lort
  */
 
@@ -12,7 +12,8 @@
 
 typedef enum
 {
-	app_sig_keyscan = 1
+	app_sig_keyscan = 1,
+	app_sig_reset ,
 }apptask_e;
 
 void app_task_init(uint8 is_connect);

@@ -18,12 +18,12 @@
 
 struct Hal_led_t
 {
-  int blinkNum;
-  uint8 status;
-  uint8 lastStat;
-  int blinkTimeH;
-  int blinkTimeL;
-  int runtime;
+  uint32 blinkNum;
+  uint8 	status;
+  uint8 	lastStat;
+  uint32 blinkTimeH;
+  uint32 blinkTimeL;
+  uint32 runtime;
 };
 
 extern struct Hal_led_t Led;

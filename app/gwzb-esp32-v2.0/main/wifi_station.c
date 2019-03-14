@@ -22,6 +22,7 @@
 #include "esp_smartconfig.h"
 #include "osCore.h"
 #include "pluto.h"
+#include "hal_led.h"
 
 /* FreeRTOS event group to signal when we are connected & ready to make a request */
 static EventGroupHandle_t wifi_event_group;
@@ -70,7 +71,8 @@ esp_err_t initialise_wifi(void)
 	ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA,&sta_conf));
 	if((osMemchkz(sta_conf.sta.ssid,32)==0)||osMemchkz(sta_conf.sta.password,64)==0)
 	{
-		xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 2048, NULL, 3, NULL);
+	    ESP_ERROR_CHECK( esp_smartconfig_set_type(SC_TYPE_AIRKISS) );
+	    ESP_ERROR_CHECK( esp_smartconfig_start(sc_callback) );
 		ret = ESP_FAIL;
 	}
 	else
@@ -78,7 +80,7 @@ esp_err_t initialise_wifi(void)
 		ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA,&sta_conf));
 		ESP_ERROR_CHECK(esp_wifi_connect());
 	}
-
+	xTaskCreate(smartconfig_example_task, "smartconfig_example_task", 2048, NULL, 3, NULL);
 	return ret;
 }
 
@@ -130,14 +132,12 @@ void smartconfig_example_task(void * parm)
 	uint8						got_ip_flag = 0;
 	uint32						runtime = portMAX_DELAY;;
     EventBits_t uxBits;
-    ESP_ERROR_CHECK( esp_smartconfig_set_type(SC_TYPE_AIRKISS) );
-    ESP_ERROR_CHECK( esp_smartconfig_start(sc_callback) );
     while (1) {
         uxBits = xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT | ESPTOUCH_DONE_BIT, true, false, runtime);
         if(uxBits & CONNECTED_BIT) {
             ESP_LOGI(TAG, "WiFi Connected to ap");
             airkiss_state = SC_STATUS_LINK_OVER+1;
-            runtime = (60*1000)/portTICK_RATE_MS;
+            runtime = 0;
         }
         if(uxBits & START_PROCESS_BIT)
 		{
@@ -146,6 +146,7 @@ void smartconfig_example_task(void * parm)
         if(uxBits & ESPTOUCH_DONE_BIT) {
             ESP_LOGI(TAG, "smartconfig over");
             pdo_req_send_device_annouce(NULL);
+            hal_led_blink(0x0FFFFFFF,1000,1000);
             esp_smartconfig_stop();
             runtime = (60*1000)/portTICK_RATE_MS;
         }
@@ -159,8 +160,8 @@ void smartconfig_example_task(void * parm)
 				case SC_STATUS_GETTING_SSID_PSWD:
 				case SC_STATUS_LINK:
 				case SC_STATUS_LINK_OVER:
-					//esp_smartconfig_stop();
-					//ESP_ERROR_CHECK( esp_smartconfig_start(sc_callback) );
+					esp_smartconfig_stop();
+					ESP_ERROR_CHECK( esp_smartconfig_start(sc_callback) );
 					break;
 				case (SC_STATUS_LINK_OVER+1):
 					if(tcpip_adapter_get_ip_info(ESP_IF_WIFI_STA, &ip)==ESP_OK)

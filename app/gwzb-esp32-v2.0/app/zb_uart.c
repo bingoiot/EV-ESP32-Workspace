@@ -12,7 +12,7 @@
 
 #define ZB_SOF_FLAG				0xFE
 #define ZB_SOF_FLAG1			0xFF
-#define ZB_RX_BUFFER_SIZE		(1024)
+#define ZB_RX_BUFFER_SIZE		(512)
 #define ZB_MIN_PACKAGE_SIZE		(sizeof(zb_uart_package_t)+1)
 
 typedef struct
@@ -158,12 +158,12 @@ static uint8 read_package(uint8 *pbuf, uint8 len)
 	uint16				slen;
 	uint16 				rlen;
 	uint8				itry;
-	uint8				buf[255];
+	uint8				buf[128];
 	//DBG_vPrintf(TRUE, "hal_uartRead4: \r\n ");
-	while((slen = hal_uart_read(buf,255,0))>0)
+	while((slen = hal_uart_read(buf,128,0))>0)
 	{
 		//osEntercritical();
-		if(ZB_RX_BUFFER_SIZE<zb_rx.cnt)
+		if(ZB_RX_BUFFER_SIZE<(zb_rx.cnt+slen))
 			zb_rx.cnt = 0;
 		rlen = ZB_RX_BUFFER_SIZE - zb_rx.cnt;//ʣ��ռ�
 		if(rlen>0)

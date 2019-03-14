@@ -254,6 +254,7 @@ extern void 		pluto_set_comkey(uint8* key);
 extern void 		pluto_set_guestkey(uint8* key);
 extern uint8 		pluto_get_device_lqi(void);
 extern void 		pluto_reset_system(uint32 tim);
+extern void			pluto_update_guest_key(osState enable);
 
 /*******device key operation*****/
 extern int  		pdo_clear_device_keys(void);

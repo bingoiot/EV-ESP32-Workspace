@@ -9,8 +9,14 @@ struct Key_t Button;
 #define GPIO_KEY_NUM0   0//4//0
 #define GPIO_KEY_MASK0	(1<<GPIO_KEY_NUM0)
 
-#define GPIO_KEY_NUM1   34
+#define GPIO_KEY_NUM1   25
 #define GPIO_KEY_MASK1	(((uint64_t)1)<<GPIO_KEY_NUM1)
+
+#define GPIO_KEY_NUM2   26
+#define GPIO_KEY_MASK2	(((uint64_t)1)<<GPIO_KEY_NUM2)
+
+#define GPIO_KEY_NUM3   27
+#define GPIO_KEY_MASK3	(((uint64_t)1)<<GPIO_KEY_NUM3)
 
 static void FUC_ATTR hal_key_scan(int tick)
 {
@@ -18,8 +24,12 @@ static void FUC_ATTR hal_key_scan(int tick)
 	temp=0x00;
 	if(!(gpio_input_get()&GPIO_KEY_MASK0))
 		temp|=KEY0;
-	//if(!(gpio_input_get_high()&(GPIO_KEY_MASK1>>32)))
-	//	temp|=KEY1;
+	if(!(gpio_input_get()&(GPIO_KEY_MASK1)))
+		temp|=KEY1;
+	if(!(gpio_input_get()&(GPIO_KEY_MASK2)))
+		temp|=KEY2;
+	if(!(gpio_input_get()&(GPIO_KEY_MASK3)))
+		temp|=KEY3;
 	if(temp)
 	{
 
@@ -53,7 +63,7 @@ void FUC_ATTR hal_key_init()
     //interrupt of rising edge
     io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
     //bit mask of the pins, use GPIO4/5 here
-    io_conf.pin_bit_mask = GPIO_KEY_MASK0|GPIO_KEY_MASK1;
+    io_conf.pin_bit_mask = GPIO_KEY_MASK0|GPIO_KEY_MASK1|GPIO_KEY_MASK2|GPIO_KEY_MASK3;
     //set as input mode
     io_conf.mode = GPIO_MODE_INPUT;
     //enable pull-up mode

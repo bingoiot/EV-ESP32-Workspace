@@ -21,6 +21,7 @@
 #include "zb_color.h"
 #include "pluto.h"
 #include "aID.h"
+#include "hal_lamp.h"
 
 static void zb_app_task(int sig, void *arg, int len);
 static void pluto_permit_join_cb(uint8 state,uint16 duration);
@@ -66,6 +67,46 @@ void pluto_send_status_cb(address_t *src,uint8 seq, command_t *cmd, uint8 state)
 {
 	osLogI(DBG_MT_APP,"zb_send_status_cb state:%d \r\n",state);
 }
+static void FUC_ATTR set_on_off(uint8 port, uint8 state)
+{
+	switch(port)
+	{
+	case 0x01:
+		hal_lamp_set(LAMP0,state);
+		break;
+	case 0x02:
+		hal_lamp_set(LAMP1,state);
+		break;
+	case 0x03:
+		hal_lamp_set(LAMP2,state);
+		break;
+	case 0x04:
+		hal_lamp_set(LAMP3,state);
+		break;
+	default:
+		return ;
+	}
+}
+static uint8 FUC_ATTR read_on_off(uint8 port)
+{
+	uint8 state = 0x00;
+	switch(port)
+	{
+	case 0x01:
+		state = hal_lamp_get(LAMP0);
+		break;
+	case 0x02:
+		state = hal_lamp_get(LAMP1);
+		break;
+	case 0x03:
+		state = hal_lamp_get(LAMP2);
+		break;
+	case 0x04:
+		state = hal_lamp_get(LAMP3);
+		break;
+	}
+	return state;
+}
 void pluto_recieve_message_cb(address_t *src,uint8 seq, command_t *cmd, uint8 *pdata,uint32 len)
 {
 	color_xy_t 	cxy;
@@ -75,98 +116,129 @@ void pluto_recieve_message_cb(address_t *src,uint8 seq, command_t *cmd, uint8 *p
 	uint16 		addr;
 	uint16  	cID;
 	uint8		ep;
-	addr = zb_get_addr(src->port);
-	ep = zb_get_ep(src->port);
-	cID = zb_attributeID_to_clusteID(cmd->aID);
-	osLogI(1,"zb_recieve_message_cb port:%d--> addr:%04x,  ep:%02x cID:%04x aID:%08x cmd_id:%02x,\r\n",src->port,addr,ep,cID,cmd->aID,cmd->cmd_id);
-	osLogI(DBG_MT_APP,"test_mem: free heap: %d\r\n",esp_get_free_heap_size());
-	switch(cmd->aID)
+	if(src->port<4)
 	{
-		case aID_Gen_Type_Switch://switch
-			if(cmd->cmd_id==cmd_write)
+		uint8 state;
+		uint8 cmd_id = cmd->cmd_id;
+		if(cmd->aID==aID_Gen_Type_Switch)
+		{
+			cmd->cmd_id |= cmd_return;
+			if(cmd_id==cmd_write)
 			{
-				zclGeneral_SendOnOff(addr,ep,osFalse,zb_get_seq(),pdata[0]);
-				pdo_port_set_value(src->port,"value",pdata[0]);
+				set_on_off(src->port,pdata[0]);
+				aps_req_report_command(src->port,seq,cmd,pdata,1,option_default);
 			}
-			else if(cmd->cmd_id==cmd_read)
+			else if(cmd_id==cmd_read)
 			{
-				app_req_read_onoff(ep,addr);
+				state = read_on_off(src->port);
+				aps_req_send_command(src,seq,cmd,&state,1,option_default);
 			}
-			break;
-		case aID_Gen_Type_Level://dimer light
-		case aID_Gen_Type_White:
-			if(cmd->cmd_id==cmd_write)
+		}
+		else if(cmd->aID==aID_Gen_Type_LQI)
+		{
+			cmd->cmd_id |= cmd_return;
+			if(cmd_id==cmd_read)
 			{
-				zclGeneral_SendLevelControlMoveToLevelWithOnOff(addr,ep,pdata[0],0,osFalse,zb_get_seq());
-				pdo_port_set_value(src->port,"value",pdata[0]);
+				state = pluto_get_device_lqi();
+				aps_req_send_command(src,seq,cmd,&state,1,option_default);
 			}
-			else if(cmd->cmd_id==cmd_read)
-			{
-				app_req_read_level_control(ep,addr);
-			}
-			if(pdata[0]==0)
-				zclGeneral_SendOnOff(addr,ep,osFalse,zb_get_seq(),COMMAND_OFF);
-			break;
-		case aID_Gen_Type_Red://RGB light
-		case aID_Gen_Type_Green:
-		case aID_Gen_Type_Blue:
-		case aID_Gen_Type_Yellow:
-			break;
-		case aID_Gen_Type_Color:
-			if(cmd->cmd_id==cmd_write)
-			{
-				rgb.R = pdata[0];
-				rgb.G = pdata[1];
-				rgb.B = pdata[2];
-				temp = osBtoU32(pdata);
-				pdo_port_set_value(src->port,"value",temp);
-				color_rgb_to_xy(&cxy,&rgb);
-				level = (uint8)zclLighting_ColorControl_Send_MoveToColorCmd(ep,addr,
-						(uint16)(cxy.x*0xFEFF), (uint16)(cxy.y*0xFEFF),
-						0,osFalse,zb_get_seq());
-				level += pdata[3];
-				level /= 2;
-				if(level)
-					zclGeneral_SendLevelControlMoveToLevelWithOnOff(addr,ep,level,0,osFalse,zb_get_seq());
-				else
-					zclGeneral_SendOnOff(addr,ep,osFalse,zb_get_seq(),COMMAND_OFF);
-			}
-			else if(cmd->cmd_id==cmd_read)
-			{
-				app_req_read_color_lighting(ep,addr);
-			}
-			break;
-		case aID_Gen_Type_WindowSwitch:
-			if(cmd->cmd_id==cmd_write)
-			{
-				pdo_port_set_value(src->port,"value",pdata[0]);
-				switch(pdata[0])
+		}
+	}
+	else
+	{
+		addr = zb_get_addr(src->port);
+		ep = zb_get_ep(src->port);
+		cID = zb_attributeID_to_clusteID(cmd->aID);
+		osLogI(1,"zb_recieve_message_cb port:%d--> addr:%04x,  ep:%02x cID:%04x aID:%08x cmd_id:%02x,\r\n",src->port,addr,ep,cID,cmd->aID,cmd->cmd_id);
+		osLogI(DBG_MT_APP,"test_mem: free heap: %d\r\n",esp_get_free_heap_size());
+		switch(cmd->aID)
+		{
+			case aID_Gen_Type_Switch://switch
+				if(cmd->cmd_id==cmd_write)
 				{
-				case 0x01://open
-					zclClosures_SendUpOpen(ep,addr,osFalse,zb_get_seq());
-					break;
-				case 0x02://close
-					zclClosures_SendDownClose(ep,addr,osFalse,zb_get_seq());
-					break;
-				case 0x00://stop
-					zclClosures_SendStop(ep,addr,osFalse,zb_get_seq());
-					break;
+					zclGeneral_SendOnOff(addr,ep,osFalse,zb_get_seq(),pdata[0]);
+					pdo_port_set_value(src->port,"value",pdata[0]);
 				}
-			}
-			else if(cmd->cmd_id==cmd_read)
-			{
-				app_req_read_window_convering(ep,addr);
-			}
-			break;
-		case aID_Gen_Type_WindowPercent:
-			pdo_port_set_value(src->port,"value",pdata[0]);
-			zclClosures_SendGoToLiftPercentage(ep,addr,pdata[0],osFalse,zb_get_seq());
-			break;
-		case aID_Gen_Type_Locker:
-			break;
-		default:
-			break;
-	}//switch
+				else if(cmd->cmd_id==cmd_read)
+				{
+					app_req_read_onoff(ep,addr);
+				}
+				break;
+			case aID_Gen_Type_Level://dimer light
+			case aID_Gen_Type_White:
+				if(cmd->cmd_id==cmd_write)
+				{
+					zclGeneral_SendLevelControlMoveToLevelWithOnOff(addr,ep,pdata[0],0,osFalse,zb_get_seq());
+					pdo_port_set_value(src->port,"value",pdata[0]);
+				}
+				else if(cmd->cmd_id==cmd_read)
+				{
+					app_req_read_level_control(ep,addr);
+				}
+				if(pdata[0]==0)
+					zclGeneral_SendOnOff(addr,ep,osFalse,zb_get_seq(),COMMAND_OFF);
+				break;
+			case aID_Gen_Type_Red://RGB light
+			case aID_Gen_Type_Green:
+			case aID_Gen_Type_Blue:
+			case aID_Gen_Type_Yellow:
+				break;
+			case aID_Gen_Type_Color:
+				if(cmd->cmd_id==cmd_write)
+				{
+					rgb.R = pdata[0];
+					rgb.G = pdata[1];
+					rgb.B = pdata[2];
+					temp = osBtoU32(pdata);
+					pdo_port_set_value(src->port,"value",temp);
+					color_rgb_to_xy(&cxy,&rgb);
+					level = (uint8)zclLighting_ColorControl_Send_MoveToColorCmd(ep,addr,
+							(uint16)(cxy.x*0xFEFF), (uint16)(cxy.y*0xFEFF),
+							0,osFalse,zb_get_seq());
+					level += pdata[3];
+					level /= 2;
+					if(level)
+						zclGeneral_SendLevelControlMoveToLevelWithOnOff(addr,ep,level,0,osFalse,zb_get_seq());
+					else
+						zclGeneral_SendOnOff(addr,ep,osFalse,zb_get_seq(),COMMAND_OFF);
+				}
+				else if(cmd->cmd_id==cmd_read)
+				{
+					app_req_read_color_lighting(ep,addr);
+				}
+				break;
+			case aID_Gen_Type_WindowSwitch:
+				if(cmd->cmd_id==cmd_write)
+				{
+					pdo_port_set_value(src->port,"value",pdata[0]);
+					switch(pdata[0])
+					{
+					case 0x01://open
+						zclClosures_SendUpOpen(ep,addr,osFalse,zb_get_seq());
+						break;
+					case 0x02://close
+						zclClosures_SendDownClose(ep,addr,osFalse,zb_get_seq());
+						break;
+					case 0x00://stop
+						zclClosures_SendStop(ep,addr,osFalse,zb_get_seq());
+						break;
+					}
+				}
+				else if(cmd->cmd_id==cmd_read)
+				{
+					app_req_read_window_convering(ep,addr);
+				}
+				break;
+			case aID_Gen_Type_WindowPercent:
+				pdo_port_set_value(src->port,"value",pdata[0]);
+				zclClosures_SendGoToLiftPercentage(ep,addr,pdata[0],osFalse,zb_get_seq());
+				break;
+			case aID_Gen_Type_Locker:
+				break;
+			default:
+				break;
+		}//switch
+	}
 }
 
 void zb_app_receive_message(uint16 addr, uint8  ep,uint8 seq, uint16 cID, uint8 cmd, uint8 specific, uint8 *pdata, uint8 len)

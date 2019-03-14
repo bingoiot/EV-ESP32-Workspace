@@ -13,6 +13,7 @@
 #include "aID.h"
 #include "hal_key.h"
 #include "hal_led.h"
+#include "hal_lamp.h"
 #include "factory_settings.h"
 #include "app_task.h"
 #include "aID.h"
@@ -54,6 +55,9 @@ const device_describe_t device_describe =
 		.aID = (uint32*)device_attribute_id
 };
 
+const uint32 port_attribute_id[] = {aID_Gen_Type_Switch,aID_Gen_Type_LQI};
+#define PORT_ATTRIBUTE_ID_NUM	(sizeof(port_attribute_id)/sizeof(port_attribute_id[0]))
+
 const uint8 addr[]={0x01,0x56,0x05,0x00,0x01,0x00,0x00,0x07};
 const uint8 sn[]={0xA3,0xD8,0x72,0x3B,0xAD,0x88,0x52,0xBE,0x2D,0x4C,0x90,0x91,0xC0,0xF6,0xB3,0xDC};
 const pdo_server_t SnInfo= {
@@ -75,16 +79,17 @@ void FUC_ATTR app_task_init(uint8 is_connect)
 	aps_listener_t	mylisten;
 	hal_key_init();
 	hal_led_init();
+	hal_lamp_init();
 	factory_init();
 	pluto_init();
 	if(is_connect==osFalse)
 	{
-    	hal_led_blink(0x7FFFFFFF,100,100);
+    	hal_led_blink(0xFFFFFFFF,100,100);
     	pluto_registe_led(NULL);
 	}
 	else
 	{
-		hal_led_blink(0x7FFFFFFF,500,500);
+		hal_led_blink(0xFFFFFFFF,1000,1000);
 		pluto_registe_led(hal_led_blink);
 	}
 	mylisten.recieve_msg = pluto_recieve_message_cb;
@@ -93,20 +98,30 @@ void FUC_ATTR app_task_init(uint8 is_connect)
     pdo_set_device_describe((device_describe_t*)&device_describe);
     login_set_state_change_cb(app_login_state_cb);
 	osStartReloadTimer(20,app_task,app_sig_keyscan,NULL);
+    pdo_register_port(1,Application_ID_Switch,(uint32*)port_attribute_id,PORT_ATTRIBUTE_ID_NUM,osFalse);
+    pdo_register_port(2,Application_ID_Switch,(uint32*)port_attribute_id,PORT_ATTRIBUTE_ID_NUM,osFalse);
+    pdo_register_port(3,Application_ID_Switch,(uint32*)port_attribute_id,PORT_ATTRIBUTE_ID_NUM,osFalse);
 	zb_app_init();
+	pluto_update_guest_key(osFalse);//disabel update guest key
     //pdo_write_server((pdo_server_t*)&SnInfo);
 }
 #define RESET_WIFI_CONFIG	1
 #define RESET_ALL_CONFIG	2
 #include "hal_uart.h"
 uint8 bb[]={0xfe, 0x03, 0x21, 0x08, 0x21, 0x00, 0x14, 0x1f};
+extern uint8 	pluto_get_device_lqi(void);
 void FUC_ATTR app_task(int sig,void *arg,int len)
 {
-	static uint8 flag = 0;
-	uint32 time;
+	command_t 	cmd;
+	static 	uint8 flag = 0;
+	uint32 	time;
+	uint8 	state;
 	uint8 	key,shift;
 	switch(sig)
 	{
+	case app_sig_reset:
+		pluto_reset_system(1000);
+		break;
 	case app_sig_keyscan:
 		shift = hal_get_key(&key,20);
 		if(shift)
@@ -114,7 +129,28 @@ void FUC_ATTR app_task(int sig,void *arg,int len)
 			if(shift==HAL_KEY_DOWN)
 			{
 				flag = 0x00;
-				osLogI(1,"app_sig_keyscan: key:%02x shift:%02x  free:%d \r\n ",key,shift,esp_get_free_heap_size());
+				cmd.aID 	= aID_Gen_Type_Switch;
+				cmd.cmd_id 	= cmd_return;
+				cmd.option = 0x00;
+				osLogI(1,"app_sig_keyscan: key:%02x shift:%02x  free:%d lqi:%d \r\n ",key,shift,esp_get_free_heap_size(),pluto_get_device_lqi());
+				if(key==KEY3)
+				{
+					hal_lamp_tolgle(LAMP2);
+					state = hal_lamp_get(LAMP2);
+					aps_req_report_command(0x03,pluto_get_seq(),&cmd,&state,1,option_default);
+				}
+				else if(key==KEY2)
+				{
+					hal_lamp_tolgle(LAMP1);
+					state = hal_lamp_get(LAMP1);
+					aps_req_report_command(0x02,pluto_get_seq(),&cmd,&state,1,option_default);
+				}
+				else if(key==KEY1)
+				{
+					hal_lamp_tolgle(LAMP0);
+					state = hal_lamp_get(LAMP0);
+					aps_req_report_command(0x01,pluto_get_seq(),&cmd,&state,1,option_default);
+				}
 			}
 			else if(shift==HAL_KEY_KEEP)
 			{
@@ -163,7 +199,17 @@ static void FUC_ATTR factory_reset(int sig, void *arg, int len)
 }
 static void FUC_ATTR app_login_state_cb (uint8 state)
 {
+	static uint8 on_line = 0;
 	osLogI(1,"app_login_state_cb: state:%d \r\n !",state);
+	if(state == login_state_online)
+	{
+		on_line = 1;
+		osDeleteTimer(app_task,app_sig_reset);
+	}
+	else if(on_line)//if reconnect failed or reset chip
+	{
+		osStartReloadTimer((5*60*1000),app_task,app_sig_reset,NULL);
+	}
 	switch(state)
 	{
 	case login_state_online:

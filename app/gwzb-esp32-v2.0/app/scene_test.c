@@ -7,6 +7,7 @@
  */
 
 #include "osCore.h"
+#include "pluto.h"
 #include "pluto_file_system.h"
 #include "pluto.h"
 #include "aID.h"
