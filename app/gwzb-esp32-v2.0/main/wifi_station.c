@@ -158,10 +158,11 @@ void smartconfig_example_task(void * parm)
 				case SC_STATUS_WAIT:
 				case SC_STATUS_FIND_CHANNEL:
 				case SC_STATUS_GETTING_SSID_PSWD:
-				case SC_STATUS_LINK:
-				case SC_STATUS_LINK_OVER:
 					esp_smartconfig_stop();
 					ESP_ERROR_CHECK( esp_smartconfig_start(sc_callback) );
+					break;
+				case SC_STATUS_LINK:
+				case SC_STATUS_LINK_OVER:
 					break;
 				case (SC_STATUS_LINK_OVER+1):
 					if(tcpip_adapter_get_ip_info(ESP_IF_WIFI_STA, &ip)==ESP_OK)
