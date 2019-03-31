@@ -312,6 +312,7 @@ static void zb_specific_process(uint16 addr,uint8 ep,uint8 seq, uint16 cID,uint8
 				buf[0] = 0x01;
 			else
 				buf[0] = 0x00;
+			osLogI(1,"zb_specific_process: port:%02x aID:%08x cmd:%02x \r\n",port,scmd.aID,scmd.cmd_id);
 			aps_req_report_command(port,pluto_get_seq(),&scmd,buf,1,option_default);
 		}
 		break;
@@ -356,6 +357,7 @@ static void zb_report_command_process(uint16 addr,uint8 ep,uint8 seq, uint16 cID
 			cmd.aID = zb_clusteID_to_attributeID(cID);
 			osLogI(DBG_MT_APP,"zb_report_command_process:report aID:%08x \r\n",cmd.aID);
 			value8 = pdo_port_get_value(port,"value");
+			osLogI(1,"zb_report_command_process: port:%02x aID:%08x cmd:%02x \r\n",port,cmd.aID,cmd.cmd_id);
 			aps_req_report_command(port,pluto_get_seq(),&cmd,&value8,1,option_default);
 			break;
 		case ZCL_CLUSTER_ID_LIGHTING_COLOR_CONTROL:
@@ -389,6 +391,7 @@ static void zb_default_respone_process(uint16 addr, uint8 ep,uint8 seq, uint16 c
 				cmd.cmd_id = cmd_write|cmd_return;
 				cmd.aID = zb_clusteID_to_attributeID(cID);
 				value8 = pdo_port_get_value(port,"value");
+				osLogI(1,"zb_default_respone_process: port:%02x aID:%08x cmd:%02x \r\n",port,cmd.aID,cmd.cmd_id);
 				aps_req_report_command(port,pluto_get_seq(),&cmd,&value8,1,option_default);
 			}
 			break;
@@ -400,6 +403,7 @@ static void zb_default_respone_process(uint16 addr, uint8 ep,uint8 seq, uint16 c
 				cmd.aID = zb_clusteID_to_attributeID(cID);
 				value32 = pdo_port_get_value(port,"value");
 				osU32toB(buf,value32);
+				osLogI(1,"zb_default_respone_process: port:%02x aID:%08x cmd:%02x \r\n",port,cmd.aID,cmd.cmd_id);
 				aps_req_report_command(port,pluto_get_seq(),&cmd,buf,4,option_default);
 			}
 			break;
@@ -451,6 +455,7 @@ static void zb_read_respone_process(uint16 addr, uint8 ep,uint8 seq, uint16 cID,
 				cmd.cmd_id = cmd_read|cmd_return;
 				cmd.aID = zb_clusteID_to_attributeID(cID);
 				value8 = pdo_port_get_value(port,"value");
+				osLogI(1,"zb_read_respone_process: port:%02x aID:%08x cmd:%02x \r\n",port,cmd.aID,cmd.cmd_id);
 				aps_req_report_command(port,pluto_get_seq(),&cmd,&value8,1,option_default);
 			}
 			break;
@@ -462,6 +467,7 @@ static void zb_read_respone_process(uint16 addr, uint8 ep,uint8 seq, uint16 cID,
 				cmd.aID = zb_clusteID_to_attributeID(cID);
 				value32 = pdo_port_get_value(port,"value");
 				osU32toB(buf,value32);
+				osLogI(1,"zb_read_respone_process: port:%02x aID:%08x cmd:%02x \r\n",port,cmd.aID,cmd.cmd_id);
 				aps_req_report_command(port,pluto_get_seq(),&cmd,buf,4,option_default);
 			}
 			break;

@@ -97,7 +97,7 @@ osState zb_io_remove_send(uint16 addr, uint8 seq, uint8 same_addr)
 	}
 	if(ret==osSucceed)
 	{
-		osStartReloadTimer(30,io_task,1,NULL);
+		osStartReloadTimer(IO_DELAY_SEND,io_task,1,NULL);
 	}
 	return ret;
 }

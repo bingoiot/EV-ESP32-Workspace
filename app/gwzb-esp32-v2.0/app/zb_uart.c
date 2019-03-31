@@ -175,7 +175,7 @@ static uint8 read_package(uint8 *pbuf, uint8 len)
 			}
 			osMemcpy(&zb_rx.data[zb_rx.cnt],buf,slen);
 			zb_rx.cnt += slen;
-			zb_rx.timeout = 3;
+			zb_rx.timeout = 10;
 		}
 		//osExitcritical();
 		osLogB(0,"read_package:",zb_rx.data,zb_rx.cnt);
@@ -187,7 +187,7 @@ static uint8 read_package(uint8 *pbuf, uint8 len)
 	}
 	else if(zb_rx.cnt)
 	{
-		osLogB(DBG_MT_ERROR, "message timeout:",zb_rx.data,zb_rx.cnt);
+		osLogB(DBG_MT_ERROR, "read_package: message timeout:",zb_rx.data,zb_rx.cnt);
 		zb_rx.cnt = 0;
 	}
 	slen = 0;

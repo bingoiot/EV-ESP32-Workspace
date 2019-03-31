@@ -8,7 +8,8 @@
 #ifndef APP_ZB_IO_BUFFER_H_
 #define APP_ZB_IO_BUFFER_H_
 
-#define IO_SEND_TIMEOUT			(250)
+#define IO_SEND_TIMEOUT			(300)
+#define IO_DELAY_SEND			(100)
 #define IO_SEND_TRY				(3)
 
 osState zb_io_init(void);
