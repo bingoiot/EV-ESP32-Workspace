@@ -268,7 +268,7 @@ static void ep_describe_process(uint8 *pdata, uint16 len)
 				osLogI(DBG_MT_ZDO,"outcID:%04x \r\n",pOutcID[i]);
 			}
 		}
-		osLogI(DBG_MT_ZDO,"MTZDO_RspSimpeDesc: src:%04x, dev:%04x, cLen:%d, point:%02x, profileID:%04x, devID:%04x, version:%d, InNum:%02x,OutNum,:%02x \r\n",
+		osLogI(DBG_MT_COMMON,"MTZDO_RspSimpeDesc: src:%04x, dev:%04x, cLen:%d, point:%02x, profileID:%04x, devID:%04x, version:%d, InNum:%02x,OutNum,:%02x \r\n",
 				srcAddr,devAddr,cLen,point,profileID,devID,devVer,InNum,OutNum);
 		osLogB(DBG_MT_ZDO,"InCluster:",(uint8*)pIncID,InNum*2);
 		osLogB(DBG_MT_ZDO,"OutCluster:",(uint8*)pOutcID,OutNum*2);

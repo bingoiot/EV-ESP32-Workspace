@@ -46,9 +46,9 @@ void app_main()
     				break;
     			}
     		}
-    		else if(shift==HAL_KEY_UP)//butto hold up
+    		else if(shift==HAL_KEY_KEEP)//butto hold up
     		{
-    			printf("key press keep time:%d \r\n",hal_key_keeptime());
+    			printf("key press key:%02x keep time:%d \r\n",key,hal_key_keeptime());
     		}
     	}
         vTaskDelay(20 / portTICK_RATE_MS);

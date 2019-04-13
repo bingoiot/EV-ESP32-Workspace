@@ -321,6 +321,9 @@ static void zb_specific_process(uint16 addr,uint8 ep,uint8 seq, uint16 cID,uint8
 static void zb_report_command_process(uint16 addr,uint8 ep,uint8 seq, uint16 cID, uint8 *pdata,  uint8 len)
 {
 	command_t 	cmd;
+	float		value;
+	int 		temp;
+	char		buf[32];
 	uint8 		port;
 	uint8		value8;
 	osLogI(DBG_MT_APP,"zb_report_command_process: addr:%04x,ep:%02x,seq:%d,cID:%04x ",addr,ep,seq ,cID);
@@ -359,6 +362,30 @@ static void zb_report_command_process(uint16 addr,uint8 ep,uint8 seq, uint16 cID
 			value8 = pdo_port_get_value(port,"value");
 			osLogI(1,"zb_report_command_process: port:%02x aID:%08x cmd:%02x \r\n",port,cmd.aID,cmd.cmd_id);
 			aps_req_report_command(port,pluto_get_seq(),&cmd,&value8,1,option_default);
+			break;
+		case ZCL_CLUSTER_ID_MS_TEMPERATURE_MEASUREMENT:
+		case ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY:
+		case ZCL_CLUSTER_ID_MS_FLOW_MEASUREMENT:
+		case ZCL_CLUSTER_ID_MS_WINSPEED_MEASUREMENT:
+			if((len>4)&&(pdata[2]==0x29))
+			{
+				temp = zb_btou16(&pdata[3]);
+				if(temp&0x8000)
+				{
+					temp = temp-1;
+					temp = (~temp)&0x0000FFFF;
+					temp = -temp;
+				}
+				osMemset(buf,0,sizeof(buf));
+				value = temp/100.0;
+				osFtoA(buf,value,2);
+				pdo_port_set_string(port,"value",buf);
+				cmd.option = aID_Gen_Option;
+				cmd.cmd_id = cmd_return;
+				cmd.aID = zb_clusteID_to_attributeID(cID);
+				osLogI(1,"zb_report_command_process: port:%02x aID:%08x cmd:%02x ,temp:%d,data:%s \r\n",port,cmd.aID,cmd.cmd_id,temp,buf);
+				aps_req_report_command(port,pluto_get_seq(),&cmd,(uint8*)buf,osStrlen(buf),option_default);
+			}
 			break;
 		case ZCL_CLUSTER_ID_LIGHTING_COLOR_CONTROL:
 			break;

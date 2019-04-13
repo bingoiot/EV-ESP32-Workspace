@@ -59,6 +59,9 @@ const uint32 clusteID_map[]={
 	 aID_Gen_Type_HumidityMeasurement,
  ZCL_CLUSTER_ID_MS_OCCUPANCY_SENSING,
 	 aID_Gen_Type_HumenIRAlarm,
+ ZCL_CLUSTER_ID_MS_WINSPEED_MEASUREMENT,
+ 	 aID_Gen_Type_WindSpeedMeasurement,
+// IAS ZONE
  ZCL_CLUSTER_ID_SS_IAS_ZONE,
  	 aID_Gen_Type_IAS_ZON_Alarm,
  ZCL_CLUSTER_ID_SS_IAS_ACE,
@@ -123,6 +126,9 @@ const uint32 deviceID_map[]={
 	 Application_ID_PressureSensor,
  ZCL_HA_DEVICEID_FLOW_SENSOR,
 	 Application_ID_FlowSensor,
+ ZCL_HA_DEVICEID_WINDSPEED_SENSOR,
+ 	 Application_ID_WindSpeedSensor,
+//IAS Zone
  ZCL_HA_DEVICEID_IAS_ZONE,
 	 Application_ID_IAS_ZONE,
  ZCL_HA_DEVICEID_IAS_WARNING_DEVICE,
@@ -157,6 +163,17 @@ osState zb_create_port(uint8 *exaddr, uint16 addr, uint8 ep, uint16 device_id, u
 		{
 			attr[0] = aID_Gen_Type_Unkown;
 			cnt++;
+		}
+		if((appID==Application_ID_TemperatureSensor)&&(cnt>0))//temperature special process or check humidity
+		{
+			for(i=0;i<cnt;i++)
+			{
+				if(aID_Gen_Type_HumidityMeasurement==attr[i])
+				{
+					appID = Application_ID_HumidityAndTemSensor;
+					break;
+				}
+			}
 		}
 		/*else//force add lqi attribute
 		{

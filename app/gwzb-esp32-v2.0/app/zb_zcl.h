@@ -73,6 +73,7 @@
 #define ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY                  0x0405
 #define ZCL_CLUSTER_ID_MS_OCCUPANCY_SENSING                  0x0406
 
+#define ZCL_CLUSTER_ID_MS_WINSPEED_MEASUREMENT               0x04F0
 // Security and Safety (SS) Clusters
 #define ZCL_CLUSTER_ID_SS_IAS_ZONE                           0x0500
 #define ZCL_CLUSTER_ID_SS_IAS_ACE                            0x0501

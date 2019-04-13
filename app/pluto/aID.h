@@ -108,24 +108,24 @@
 
 #define Application_ID_LocationSensor				0x005100
 #define Application_ID_DistanceSensor				0x005101
-#define Application_ID_HeightSensor				0x005102
+#define Application_ID_HeightSensor					0x005102
 #define Application_ID_AltitudeSensor				0x005104
 #define Application_ID_PressureSensor				0x005105
 
 #define Application_ID_AirPressureSensor			0x005110
 #define Application_ID_WatterPressureSensor			0x005111
-#define Application_ID_SimpleSensor				0x005112
+#define Application_ID_SimpleSensor					0x005112
 
 #define Application_ID_GravitySensor				0x005120
 
 #define Application_ID_IlluminanceSensor			0x005130
 
-#define Application_ID_SpeedSensor				0x005140
+#define Application_ID_SpeedSensor					0x005140
 #define Application_ID_AccelerationSensor			0x005141
 
 #define Application_ID_WindSpeedSensor				0x005150
 
-#define Application_ID_FlowSensor				0x005160
+#define Application_ID_FlowSensor					0x005160
 
 #define Application_ID_ElectricityMeter				0x005170
 #define Application_ID_WattHourSensor				0x005171
@@ -158,53 +158,55 @@
 #define aID_Gen_Type_WindowPercent				0x009051
 #define aID_Gen_Type_BlindsWindow				0x009052
 
-#define aID_Gen_Type_IRCode					0x009055
+#define aID_Gen_Type_IRCode						0x009055
 #define aID_Gen_Type_HXDIRCode					0x009056
-#define aID_Gen_Type_RFCode					0x00905A
+#define aID_Gen_Type_RFCode						0x00905A
 
 #define aID_Gen_Type_FanSwitch					0x009060
-#define aID_Gen_Type_FanSpeedPercent				0x009061
-#define aID_Gen_Type_FanHorizontalForward	 		0x009062
-#define aID_Gen_Type_FanVerticalForward	 			0x009063
+#define aID_Gen_Type_FanSpeedPercent			0x009061
+#define aID_Gen_Type_FanHorizontalForward	 	0x009062
+#define aID_Gen_Type_FanVerticalForward	 		0x009063
 #define aID_Gen_Type_FanWaterSwitch				0x009068
 
-#define aID_Gen_Type_Locker					0x009080
+#define aID_Gen_Type_Locker						0x009080
 #define aID_Gen_Type_Locker_RFID				0x009081
 #define aID_Gen_Type_Locker_PSW					0x009082
 #define aID_Gen_Type_Locker_FINGER				0x009083
 
 
-#define aID_Gen_Type_FireAlarm					0x00C000
-#define aID_Gen_Type_SmokeAlarm					0x00C001
-#define aID_Gen_Type_PM25Alarm					0x00C002
+#define aID_Gen_Type_FireAlarm						0x00C000
+#define aID_Gen_Type_SmokeAlarm						0x00C001
+#define aID_Gen_Type_PM25Alarm						0x00C002
 
-#define aID_Gen_Type_FloodAlarm					0x00C010
-#define aID_Gen_Type_WaterAlarm					0x00C011
+#define aID_Gen_Type_FloodAlarm						0x00C010
+#define aID_Gen_Type_WaterAlarm						0x00C011
 
-#define aID_Gen_Type_PoisonGasAlarm				0x00C020
+#define aID_Gen_Type_PoisonGasAlarm					0x00C020
 #define aID_Gen_Type_CarbonMonoxideAlarm			0x00C021
 
 #define aID_Gen_Type_CombustibleAlarm				0x00C030
 
-#define aID_Gen_Type_MenciAlarm					0x00C100
-#define aID_Gen_Type_HumenIRAlarm				0x00C110
+#define aID_Gen_Type_MenciAlarm						0x00C100
+#define aID_Gen_Type_HumenIRAlarm					0x00C110
 #define aID_Gen_Type_EmergencyButton				0x00C120
-#define aID_Gen_Type_LowPowerAlarm				0x00C130
+#define aID_Gen_Type_LowPowerAlarm					0x00C130
 
 #define aID_Gen_Type_DisassembleAlarm				0x00C400
-#define aID_Gen_Type_Alarm_Blink				0x00CFFD
-#define aID_Gen_Type_Alarm_Voice				0x00CFFE
-#define aID_Gen_Type_IAS_ZON_Alarm				0x00CFFF
+#define aID_Gen_Type_Alarm_Blink					0x00CFFD
+#define aID_Gen_Type_Alarm_Voice					0x00CFFE
+#define aID_Gen_Type_IAS_ZON_Alarm					0x00CFFF
 
 
 #define aID_Gen_Type_TemperatureMeasurement			0x00D000
 #define aID_Gen_Type_HumidityMeasurement			0x00D001
-#define aID_Gen_Type_Illuminance_Measurement			0x00D003
+#define aID_Gen_Type_Illuminance_Measurement		0x00D003
 
 #define aID_Gen_Type_PressureMeasurement			0x00D105
 #define aID_Gen_Type_WeightMeasurement				0x00D120
 
 #define aID_Gen_Type_TensionMeasurement				0x00D130
+
+#define aID_Gen_Type_WindSpeedMeasurement			0x00D150
 
 #define aID_Gen_Type_FlowMeasurement				0x00D160
 #define aID_Gen_Type_EnergyMeasurement				0x00D170
@@ -212,9 +214,9 @@
 #define aID_Gen_Type_PowerMeasurement				0x00D174
 #define aID_Gen_Type_VoltageMeasurement				0x00D178
 #define aID_Gen_Type_CurrentMeasurement				0x00D17C
-#define aID_Gen_Type_Freq					0x00D180
+#define aID_Gen_Type_Freq							0x00D180
 
-#define aID_Gen_Type_Unkown					0x00FFFF
+#define aID_Gen_Type_Unkown							0x00FFFF
 
 uint8 pluto_get_data_type(uint32 aID);
 

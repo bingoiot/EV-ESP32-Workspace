@@ -15,9 +15,9 @@
 #define DBG_MT_TASK		0
 #define DBG_MT_ZDO		0
 #define DBG_MT_SYS 		0
-#define DBG_MT_APP 		0
+#define DBG_MT_APP 		1
 #define DBG_MT_DEV 		0
-#define DBG_MT_COMMON	0
+#define DBG_MT_COMMON	1
 #define DBG_MT_LQI 		0
 
 #define Mgmt_NWK_Disc_req       ((uint16)0x0030)

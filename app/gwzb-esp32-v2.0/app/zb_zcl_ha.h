@@ -64,7 +64,7 @@
 #define ZCL_HA_DEVICEID_PRESSURE_SENSOR                         0x0305
 #define ZCL_HA_DEVICEID_FLOW_SENSOR                             0x0306
 #define ZCL_HA_DEVICEID_MINI_SPLIT_AC                           0x0307
-
+#define ZCL_HA_DEVICEID_WINDSPEED_SENSOR                        0x03F0
 // Intruder Alarm Systems (IAS) Device IDs
 #define ZCL_HA_DEVICEID_IAS_CONTROL_INDICATING_EQUIPMENT        0x0400
 #define ZCL_HA_DEVICEID_IAS_ANCILLARY_CONTROL_EQUIPMENT         0x0401
